@@ -1,17 +1,22 @@
 
 const Header = (props) => {
+    const course = props.course 
+
     return (
       <>
-        <h1>{props.course}</h1>
+        <h1>{course}</h1>
       </>
     )
 }
 
 const Part = (props) => {
+  const name = props.part.name
+  const exercises = props.part.exercises 
+
   return (
     <>
       <p>
-        {props.part.name} {props.part.exercises}
+        {name} {exercises}
       </p>
     </>
   )
