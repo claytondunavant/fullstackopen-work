@@ -1,6 +1,14 @@
-const { request } = require('express')
+const { request, response } = require('express')
 const express = require('express')
+const cors = require('cors')
 const app = express()
+
+//BEFORE ROUTE MIDDLEWARE
+
+//this allows you to access resources from a different host
+app.use(cors())
+//this activates json-parser
+app.use(express.json())
 
 let notes = [
     {
@@ -22,6 +30,8 @@ let notes = [
       important: true
     }
 ]
+
+//ROUTES  
 
 //all these are trying to make our server
 //somewhat RESTful
@@ -58,6 +68,49 @@ app.delete('/api/notes/:id', (request, response) => {
   response.status(204).end()
 })
 
+//ADDING NOTES TO SERVER
+
+const generateId = () => {
+  //tests to see if the lenght is greater than zero
+  //if it is get an array of all the notes ids and find the max
+  //an array is not passed to Max, rather the spread makes them individual digits
+  //if not maxId is zero
+  const maxId = notes.length > 0
+    ? Math.max(...notes.map(n => n.id)) 
+    : 0 
+  
+  return maxId + 1
+}
+
+app.post('/api/notes', (request, response) => {
+
+  const body = request.body
+  
+  //test if body has content
+  if (!body.content) {
+    return response.status(400).json({
+      error: 'content missing'
+    })
+  }
+  
+  //if there is no important tag it will default to false
+  const note = {
+    content: body.content,
+    important: body.important || false,
+    date: new Date(),
+    id: generateId(),
+  }
+  
+  notes = notes.concat(note)
+
+  response.json(note)
+})
+
+//middleware after the routes
+const unkownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unkown endpoint'})
+}
+app.use(unkownEndpoint)
 
 
 const PORT = 3001
